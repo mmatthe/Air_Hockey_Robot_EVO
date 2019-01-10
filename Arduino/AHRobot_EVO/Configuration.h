@@ -18,7 +18,7 @@
 
 // Geometric calibration.
 // This depends on the pulley teeth. DEFAULT: 200(steps/rev)*8(microstepping) = 1600 steps/rev. 1600/32teeth*2mm(GT2) = 25 steps/mm
-#define X_AXIS_STEPS_PER_UNIT 25    
+#define X_AXIS_STEPS_PER_UNIT 25
 #define Y_AXIS_STEPS_PER_UNIT 25
 
 // This is the center of the table. All units in milimeters
@@ -75,6 +75,10 @@
 
 
 
-
-
-
+#ifdef ARDUINO_AVR_LEONARDO
+  #define ESPSerial Serial1
+#elif defined(ARDUINO_AVR_MEGA2560)
+  #define ESPSerial Serial3
+#else
+  #error Unsupported board type!
+#endif

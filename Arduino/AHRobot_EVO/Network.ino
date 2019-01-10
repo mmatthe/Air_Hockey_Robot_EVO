@@ -28,12 +28,12 @@ void packetRead()
   unsigned char i;
   uint16_t value;
 
-  if (Serial1.available() > 0) {
+  if (ESPSerial.available() > 0) {
     // we use direct character manipulation because itÃ‚Â´s fast and we had some problems with arduino String functions...
     // We rotate the Buffer (we could implement a ring buffer in future...)
     for (i = (PACKET_SIZE - 1); i > 0; i--)
       SBuffer[i] = SBuffer[i - 1];
-    SBuffer[0] = Serial1.read();
+    SBuffer[0] = ESPSerial.read();
     //Serial.print(SBuffer[0]);
     // We look for a  message sync start (mm1, mm2 or mm3)
     if ((SBuffer[2] == 'm') && (SBuffer[1] == 'm'))
@@ -134,14 +134,14 @@ void ESPInit()
   // With the ESP8266 WIFI MODULE WE NEED TO MAKE AN INITIALIZATION PROCESS
   Serial.println("Initalizing ESP Wifi Module...");
   Serial.println("WIFI RESET");
-  Serial1.flush();
-  Serial1.print("+++");  // To ensure we exit the transparent transmision mode
+  ESPSerial.flush();
+  ESPSerial.print("+++");  // To ensure we exit the transparent transmision mode
   delay(100);
   ESPsendCommand("AT", "OK", 1);
   ESPsendCommand("AT+RST", "OK", 2); // ESP Wifi module RESET
   ESPwait("ready", 6);
   ESPsendCommand("AT+GMR", "OK", 5);
-  Serial1.println("AT+CIPSTAMAC?");
+  ESPSerial.println("AT+CIPSTAMAC?");
   ESPgetMac();
   Serial.print("MAC:");
   Serial.println(MAC);
@@ -181,17 +181,17 @@ int ESPwait(String stopstr, int timeout_secs)
       Serial.println("!Timeout!");
       return 0;  // timeout
     }
-    if (Serial1.available()) {
-      c = Serial1.read();
+    if (ESPSerial.available()) {
+      c = ESPSerial.read();
       Serial.print(c);
       response += c;
       if (response.endsWith(stopstr)) {
         found = true;
         delay(10);
-        Serial1.flush();
+        ESPSerial.flush();
         Serial.println();
       }
-    } // end Serial1_available()
+    } // end ESPSerial_available()
   } // end while (!found)
   return 1;
 }
@@ -212,9 +212,9 @@ int ESPgetMac()
     timer = millis();
     if (((timer - timer_init) / 1000) > 5) // Timeout?
       timeout = true;
-    if (Serial1.available()) {
+    if (ESPSerial.available()) {
       c2 = c1;
-      c1 = Serial1.read();
+      c1 = ESPSerial.read();
       Serial.print(c1);
       switch (state) {
         case 0:
@@ -234,7 +234,7 @@ int ESPgetMac()
         case 2:
           if ((c2 == 'O') && (c1 == 'K')) {
             Serial.println();
-            Serial1.flush();
+            ESPSerial.flush();
             return 1;  // Ok
           }
           break;
@@ -242,15 +242,13 @@ int ESPgetMac()
     } // Serial_available
   } // while (!timeout)
   Serial.println("!Timeout!");
-  Serial1.flush();
+  ESPSerial.flush();
   return -1;  // timeout
 }
 
 int ESPsendCommand(char *command, String stopstr, int timeout_secs)
 {
-  Serial1.println(command);
+  ESPSerial.println(command);
   ESPwait(stopstr, timeout_secs);
   delay(250);
 }
-
-

@@ -6,12 +6,30 @@
 // The position of the motor is controlled at 1Khz (in the main loop)
 
 // TIMER 1 : STEPPER MOTOR SPEED CONTROL MOTOR1
+
+#ifdef ARDUINO_AVR_LEONARDO
+#define SetPin7 SET(PORTE, 6)
+#define ClrPin7 CLR(PORTE, 6)
+#define SetPin12 SET(PORTD, 6)
+#define ClrPin12 CLR(PORTD, 6)
+
+#elif defined ARDUINO_AVR_MEGA2560
+
+#define SetPin7 SET(PORTH, 4)
+#define ClrPin7 CLR(PORTH, 4)
+#define SetPin12 SET(PORTB, 6)
+#define ClrPin12 CLR(PORTB, 6)
+
+#endif
+
 ISR(TIMER1_COMPA_vect)
 {
   if (dir_M1 == 0)
     return;
 
-  SET(PORTE, 6); // STEP X-AXIS (MOTOR1)
+
+  SetPin7; // STEP X-AXIS (MOTOR1)  // Pin 7
+
   position_M1 += dir_M1;
   __asm__ __volatile__ (
     "nop" "\n\t"
@@ -26,7 +44,8 @@ ISR(TIMER1_COMPA_vect)
     "nop" "\n\t"
     "nop" "\n\t"
     "nop");  // Wait for step pulse
-  CLR(PORTE, 6);
+  //CLR(PORTE, 6);  // Pin 7
+  ClrPin7;
 }
 
 // TIMER 3 : STEPPER MOTOR SPEED CONTROL MOTOR2
@@ -35,7 +54,8 @@ ISR(TIMER3_COMPA_vect)
   if (dir_M2 == 0)
     return;
 
-  SET(PORTD, 6); // STEP Y-AXIS (Motor2)
+  //SET(PORTD, 6); // STEP Y-AXIS (Motor2)
+  SetPin12;
   position_M2 += dir_M2;
   __asm__ __volatile__ (
     "nop" "\n\t"
@@ -48,7 +68,8 @@ ISR(TIMER3_COMPA_vect)
     "nop" "\n\t"
     "nop" "\n\t"
     "nop");  // Wait for step pulse
-  CLR(PORTD, 6);
+  //CLR(PORTD, 6);
+  ClrPin12;
 }
 
 // POSITION CONTROL
@@ -349,8 +370,3 @@ void updatePosition_straight()
   target_speed_M1 = max_speed * factor1 * speedfactor1 * speedfactor1;
   target_speed_M2 = max_speed * factor2 * speedfactor2 * speedfactor2;
 }
-
-
-
-
-

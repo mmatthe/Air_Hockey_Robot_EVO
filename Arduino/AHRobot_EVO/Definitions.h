@@ -137,8 +137,3 @@ int sign(int val)
   else
     return (1);
 }
-
-
-
-
-

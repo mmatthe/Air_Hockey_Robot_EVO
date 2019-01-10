@@ -36,7 +36,7 @@ void setup()
   digitalWrite(A3,HIGH); // Enable pullup
 
   Serial.begin(115200);   // PC debug connection
-  Serial1.begin(115200);  // ESP serial connection
+  ESPSerial.begin(115200);  // ESP serial connection
   delay(5000);
   Serial.print("AHR JJRobots Air Hockey Robot EVO version ");
   Serial.println(VERSION);
@@ -56,50 +56,11 @@ void setup()
   // The Robot will generate it´s own wifi network JJROBOTS_xx and listen external UDP messages...
   ESPInit();
 
-  Serial.println("Initializing Stepper motors...");
-  // STEPPER MOTORS INITIALIZATION
-  // We use TIMER 1 for stepper motor 1 and Timer 3 for motor 2
-  // TIMER1 CTC MODE
-  TCCR1B &= ~(1 << WGM13);
-  TCCR1B |=  (1 << WGM12);
-  TCCR1A &= ~(1 << WGM11);
-  TCCR1A &= ~(1 << WGM10);
-
-  // output mode = 00 (disconnected)
-  TCCR1A &= ~(3 << COM1A0);
-  TCCR1A &= ~(3 << COM1B0);
-
-  // Set the timer pre-scaler
-  // Generally we use a divider of 8, resulting in a 2MHz timer on 16MHz CPU
-  TCCR1B = (TCCR1B & ~(0x07 << CS10)) | (2 << CS10);
-
-  OCR1A = ZERO_SPEED;   // Motor stopped
-  dir_M1 = 0;
-  TCNT1 = 0;
-
-  // We use TIMER 3 for stepper motor 2
-  // STEPPER MOTORS INITIALIZATION
-  // TIMER3 CTC MODE
-  TCCR3B &= ~(1 << WGM13);
-  TCCR3B |=  (1 << WGM12);
-  TCCR3A &= ~(1 << WGM11);
-  TCCR3A &= ~(1 << WGM10);
-
-  // output mode = 00 (disconnected)
-  TCCR3A &= ~(3 << COM1A0);
-  TCCR3A &= ~(3 << COM1B0);
-
-  // Set the timer pre-scaler
-  // Generally we use a divider of 8, resulting in a 2MHz timer on 16MHz CPU
-  TCCR3B = (TCCR3B & ~(0x07 << CS10)) | (2 << CS10);
-
-  OCR3A = ZERO_SPEED;   // Motor stopped
-  dir_M2 = 0;
-  TCNT3 = 0;
-
-  delay(1000);
-  TIMSK1 |= (1 << OCIE1A); // Enable Timer1 interrupt
-  TIMSK3 |= (1 << OCIE1A); // Enable Timer1 interrupt
+#ifdef ARDUINO_AVR_LEONARDO
+  stepperInit_Leonardo();
+#elif defined(ARDUINO_AVR_MEGA2560)
+  stepperInit_Mega();
+#endif
 
   // Enable steppers
   digitalWrite(4, LOW);
@@ -152,6 +113,104 @@ void setup()
   micros_old = timer_old;
 }
 
+#ifdef ARDUINO_AVR_MEGA2560
+void stepperInit_Mega() {
+  Serial.println("Initializing Stepper motors...");
+  // STEPPER MOTORS INITIALIZATION
+  // We use TIMER 1 for stepper motor 1 and Timer 3 for motor 2
+  // TIMER1 CTC MODE
+  TCCR1B &= ~(1 << WGM13);
+  TCCR1B |=  (1 << WGM12);
+  TCCR1A &= ~(1 << WGM11);
+  TCCR1A &= ~(1 << WGM10);
+
+  // output mode = 00 (disconnected)
+  TCCR1A &= ~(3 << COM1A0);
+  TCCR1A &= ~(3 << COM1B0);
+
+  // Set the timer pre-scaler
+  // Generally we use a divider of 8, resulting in a 2MHz timer on 16MHz CPU
+  TCCR1B = (TCCR1B & ~(0x07 << CS10)) | (2 << CS10);
+
+  OCR1A = ZERO_SPEED;   // Motor stopped
+  dir_M1 = 0;
+  TCNT1 = 0;
+
+  // We use TIMER 3 for stepper motor 2
+  // STEPPER MOTORS INITIALIZATION
+  // TIMER3 CTC MODE
+  TCCR3B &= ~(1 << WGM13);
+  TCCR3B |=  (1 << WGM12);
+  TCCR3A &= ~(1 << WGM11);
+  TCCR3A &= ~(1 << WGM10);
+
+  // output mode = 00 (disconnected)
+  TCCR3A &= ~(3 << COM1A0);
+  TCCR3A &= ~(3 << COM1B0);
+
+  // Set the timer pre-scaler
+  // Generally we use a divider of 8, resulting in a 2MHz timer on 16MHz CPU
+  TCCR3B = (TCCR3B & ~(0x07 << CS10)) | (2 << CS10);
+
+  OCR3A = ZERO_SPEED;   // Motor stopped
+  dir_M2 = 0;
+  TCNT3 = 0;
+
+  delay(1000);
+  TIMSK1 |= (1 << OCIE1A); // Enable Timer1 interrupt
+  TIMSK3 |= (1 << OCIE1A); // Enable Timer1 interrupt
+}
+#endif
+
+#ifdef ARDUINO_AVR_LEONARDO
+void stepperInit_Leonardo() {
+  Serial.println("Initializing Stepper motors...");
+  // STEPPER MOTORS INITIALIZATION
+  // We use TIMER 1 for stepper motor 1 and Timer 3 for motor 2
+  // TIMER1 CTC MODE
+  TCCR1B &= ~(1 << WGM13);
+  TCCR1B |=  (1 << WGM12);
+  TCCR1A &= ~(1 << WGM11);
+  TCCR1A &= ~(1 << WGM10);
+
+  // output mode = 00 (disconnected)
+  TCCR1A &= ~(3 << COM1A0);
+  TCCR1A &= ~(3 << COM1B0);
+
+  // Set the timer pre-scaler
+  // Generally we use a divider of 8, resulting in a 2MHz timer on 16MHz CPU
+  TCCR1B = (TCCR1B & ~(0x07 << CS10)) | (2 << CS10);
+
+  OCR1A = ZERO_SPEED;   // Motor stopped
+  dir_M1 = 0;
+  TCNT1 = 0;
+
+  // We use TIMER 3 for stepper motor 2
+  // STEPPER MOTORS INITIALIZATION
+  // TIMER3 CTC MODE
+  TCCR3B &= ~(1 << WGM13);
+  TCCR3B |=  (1 << WGM12);
+  TCCR3A &= ~(1 << WGM11);
+  TCCR3A &= ~(1 << WGM10);
+
+  // output mode = 00 (disconnected)
+  TCCR3A &= ~(3 << COM1A0);
+  TCCR3A &= ~(3 << COM1B0);
+
+  // Set the timer pre-scaler
+  // Generally we use a divider of 8, resulting in a 2MHz timer on 16MHz CPU
+  TCCR3B = (TCCR3B & ~(0x07 << CS10)) | (2 << CS10);
+
+  OCR3A = ZERO_SPEED;   // Motor stopped
+  dir_M2 = 0;
+  TCNT3 = 0;
+
+  delay(1000);
+  TIMSK1 |= (1 << OCIE1A); // Enable Timer1 interrupt
+  TIMSK3 |= (1 << OCIE1A); // Enable Timer1 interrupt
+}
+#endif
+
 // Main loop
 void loop()
 {
@@ -165,12 +224,13 @@ void loop()
     loop_counter=0;
     testmode=true;
   }
-  
+
   timer_value = micros();
   if ((timer_value - timer_old) >= 1000) // MAIN 1Khz loop
   {
     timer_old = timer_value;
     loop_counter++;
+
 
     packetRead();  // Check for new packets...
     if (newPacket > 0)
@@ -249,8 +309,3 @@ void loop()
     positionControl();
   } // 1Khz loop
 }
-
-
-
-
-
