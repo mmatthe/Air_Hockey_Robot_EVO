@@ -13,12 +13,26 @@
 #define SetPin12 SET(PORTD, 6)
 #define ClrPin12 CLR(PORTD, 6)
 
+#define SetPin5 SET(PORTC, 6);
+#define ClrPin5 CLR(PORTC, 6);
+
+#define SetPin8 SET(PORTB, 4)
+#define ClrPin8 CLR(PORTB, 4)
+
+
 #elif defined ARDUINO_AVR_MEGA2560
 
 #define SetPin7 SET(PORTH, 4)
 #define ClrPin7 CLR(PORTH, 4)
 #define SetPin12 SET(PORTB, 6)
 #define ClrPin12 CLR(PORTB, 6)
+
+#define SetPin5 SET(PORTE, 3);
+#define ClrPin5 CLR(PORTE, 3);
+
+#define SetPin8 SET(PORTH, 5)
+#define ClrPin8 CLR(PORTH, 5)
+
 
 #endif
 
@@ -185,12 +199,14 @@ void setMotorSpeed(int16_t m1tspeed, int16_t m2tspeed, int16_t dt)
     dir_M1 = 0;
   else if ((speed_M1 > 0) && (dir_M1 != 1))
   {
-    CLR(PORTB, 4);
+    ClrPin8;
+    //CLR(PORTB, 4);
     dir_M1 = 1;
   }
   else if ((speed_M1 < 0) && (dir_M1 != -1))
   {
-    SET(PORTB, 4);
+    SetPin8;
+    //SET(PORTB, 4);
     dir_M1 = -1;
   }
 
@@ -224,12 +240,14 @@ void setMotorSpeed(int16_t m1tspeed, int16_t m2tspeed, int16_t dt)
     dir_M2 = 0;
   else if ((speed_M2 > 0) && (dir_M2 != 1))
   {
-    CLR(PORTC, 6);
+    ClrPin5;
+    //CLR(PORTC, 6);
     dir_M2 = 1;
   }
   else if ((speed_M2 < 0) && (dir_M2 != -1))
   {
-    SET(PORTC, 6);
+    SetPin5;
+    //SET(PORTC, 6);
     dir_M2 = -1;
   }
 
